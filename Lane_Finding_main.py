@@ -89,8 +89,8 @@ gradx = abs_sobel_thresh(image, sobel_kernel=15, orient = 'x', thresh_min = 30, 
 grady = abs_sobel_thresh(image, sobel_kernel=15, orient = 'y', thresh_min = 30, thresh_max = 105)
 mag = mag_threashold(image, sobel_kernel=15, thresh=(80, 155))
 
-combined = np.zeros_like(binary)
-combined[((gradx == 1) & (grady == 1)) & ((mag == 1) &(dir_binary == 1))] = 1
+combined = np.zeros_like(dir_binary)
+combined[((gradx == 1) | (grady == 1)) & ((mag == 1) &(dir_binary == 1))] = 1
 
 f, (ax1, ax2) = plt.subplots(1, 2, figsize= (24, 9))
 f.tight_layout()
