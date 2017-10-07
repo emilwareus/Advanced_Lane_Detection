@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Created on Sun Sep 24 11:03:23 2017
 
@@ -11,94 +11,89 @@ import matplotlib.pylab as plt
 import matplotlib.image as mpimg
 import pickle
 
+from Thresh import Thresh
+from Distort import Distort
+from Sliding_Window import Sliding_Window
+
+def process_img(image):
+    combined = Thresh.threshold(image)
+
+    #Perspective change
+    per_img, M, sr_c, M_t = Distort.perspect_Transform(image)
+    per_img_C, M_C, src, M_t_c = Distort.perspect_Transform(combined)
+    
+    
+    left_fitx, right_fitx, ploty, exist = Sliding_Window.slid_window(per_img_C)
+    
+    
+    img_with_lines = Sliding_Window.draw_lines(image, per_img_C, left_fitx, right_fitx, ploty, M_t_c, exist)
+       
+    
+    
+    return img_with_lines,  left_fitx, right_fitx, ploty, exist, combined, per_img_C
+
+def get_lane_image(image):
+    '''
+    This methode only returns the processed image.
+    Note that it wants a BGR and returns a RGB
+    '''
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    img_with_lines,  left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image) 
+    img_with_lines = cv2.cvtColor(img_with_lines, cv2.COLOR_RGB2BGR)
+    return img_with_lines
 
 
-image = mpimg.imread('signs_vehicles_xygrad.png')
+image = cv2.imread('test_images/test5.jpg') 
 
-def dir_threashold(img, sobel_kernel = 3, thresh = (0, np.pi/2)):
-    
-    #1 Grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    
-    #2 Gradient in X and Y
-    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize = sobel_kernel)
-    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize = sobel_kernel)
-    
-    #3 Calc dir of gradient
-    dir_mask = np.arctan2(np.absolute(sobely),np.absolute(sobelx))
-    
-    
-    
-    #Create mask
-    output = np.zeros_like(dir_mask)
-    output[(dir_mask >= thresh[0]) & (dir_mask <= thresh[1])] = 1
-    
-    return output
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-def mag_threashold(img, sobel_kernel = 3, thresh = (0, 255)):
-    
-    #1 Grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    
-    #2 Gradient in X and Y
-    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize = sobel_kernel)
-    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize = sobel_kernel)
-    
-    #Magnitude
-    mag = np.sqrt(sobelx**2 + sobely**2)
-    
-    #Scale
-    scaled_sobel = np.uint8(255*mag/np.max(mag))
-    
-    
-    #Create mask
-    output = np.zeros_like(scaled_sobel)
-    output[(scaled_sobel>= thresh[0]) & (scaled_sobel <= thresh[1])] = 1
-    
-    return output
+#Pipeline
+img_with_lines, left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image)
+#Thresholds of image
 
 
-
-def abs_sobel_thresh(img, sobel_kernel=3, orient = 'x', thresh_min = 0, thresh_max = 255):
-    #1 Grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    
-    #2 Gradient in X and Y
-    if orient == 'x':
-        sobel = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize = sobel_kernel)
-    else:
-        sobel = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize = sobel_kernel)
-        
-    #Absolute
-    abs_sobel = np.absolute(sobel)
-    
-    #Scale
-    scaled_sobel = np.uint8(255*abs_sobel/np.max(abs_sobel))
-    
-    
-    #mask
-    
-    mask = np.zeros_like(scaled_sobel)
-    mask[(scaled_sobel >= thresh_min) & (scaled_sobel <= thresh_max)] = 1
-    
-
-    return mask
-    
-dir_binary = dir_threashold(image, sobel_kernel=15, thresh=(0.8, 1.2))
-gradx = abs_sobel_thresh(image, sobel_kernel=15, orient = 'x', thresh_min = 30, thresh_max = 105)
-grady = abs_sobel_thresh(image, sobel_kernel=15, orient = 'y', thresh_min = 30, thresh_max = 105)
-mag = mag_threashold(image, sobel_kernel=15, thresh=(80, 155))
-
-combined = np.zeros_like(dir_binary)
-combined[((gradx == 1) | (grady == 1)) & ((mag == 1) &(dir_binary == 1))] = 1
-
-f, (ax1, ax2) = plt.subplots(1, 2, figsize= (24, 9))
-f.tight_layout()
-ax2.imshow(image)
-ax2.set_title('Original Image', fontsize = 50)
-
-
-
+#Plotting 2x2 window grid
+f1, (ax1, ax2) = plt.subplots(1, 2, figsize= (24, 9))
+f1.tight_layout()
 ax1.imshow(combined, cmap = 'gray')
 ax1.set_title('Thres Image', fontsize = 50)
+
+ax2.imshow(image)
+#ax2.scatter(src[...,0],src[...,1], c='r', s=60)          
+ax2.set_title('Original Image', fontsize = 50)
+
 plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
+
+f2, (ax3, ax4) = plt.subplots(1, 2, figsize= (24, 9))
+
+f2.tight_layout()
+
+
+ax3.imshow(per_img_C, cmap = 'gray')
+if exist:
+    ax3.plot(left_fitx, ploty, color='yellow')
+    ax3.plot(right_fitx, ploty, color='yellow')
+ax3.set_title('Thresh image perspective', fontsize = 50)
+
+
+ax4.imshow(img_with_lines)
+ax4.set_title('Image with Lanes', fontsize = 50)
+
+plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
+
+
+
+#Lets make some Movies: 
+
+MakeMovie = True
+
+if MakeMovie ==True:
+    from moviepy.editor import VideoFileClip
+    from IPython.display import HTML
+    
+    vid_output = 'output.mp4'
+    clip1 = VideoFileClip("project_video.mp4")
+    vid_clip = clip1.fl_image(get_lane_image)
+    vid_clip.write_videofile(vid_output, audio=False)
+    
+    
