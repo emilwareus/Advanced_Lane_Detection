@@ -85,6 +85,22 @@ fit_cr = np.polyfit(yvals*self.ym_per_pix, fitx*self.xm_per_pix, 2)
         curverad = ((1 + (2*fit_cr[0]*y_eval + fit_cr[1])**2)**1.5) \
                                      /np.absolute(2*fit_cr[0])
 `
+
+The position of the car was calculated in the `draw_lines()` function in `Road_lanes.py`. The following algorithm was used: 
+
+`
+  bottom_leftx = left_fitx[-1]
+        bottom_rightx = right_fitx[-1]
+        
+        lane_center = (bottom_leftx + bottom_rightx) / 2
+        
+        car_center = 1280 / 2
+        
+        difference = lane_center - car_center
+        
+        self.left_lane.line_base_pos  = difference * self.xm_per_pix
+        self.right_lane.line_base_pos= self.left_lane.line_base_pos
+`
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 The finding on the lanes was implemented in the file `Lane_Finding_main.py` with the functions `process_img()` and `get_lane_image()`.  Here is an example of my result on a test image:
@@ -97,7 +113,7 @@ The finding on the lanes was implemented in the file `Lane_Finding_main.py` with
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_1.mp4)
 
 ---
 
