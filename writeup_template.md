@@ -121,4 +121,4 @@ Here's a [link to my video result](./output_1.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+This was a hard project to get right with the harder videos. During some iterations they were decent, but not at all up to standards. To further imporve the pipeline, I need to better remove lines that are similar to the lanes in shape but not in color. My thoughts are to blur the color threshold image to not miss the lanes from the other thresholds, but effectivly remove the none-lane lines. This algorithm is slow as well. I implemented a video-stream to make it run with a camera. When trying it outside i found the lane-lines, but performed this at around 1-3 fps. 
