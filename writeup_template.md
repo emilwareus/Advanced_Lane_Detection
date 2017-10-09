@@ -57,10 +57,14 @@ I used a combination of color and gradient thresholds to generate a binary image
 * def mag_threashold(img, sobel_kernel = 3, thresh = (0, 255))
 * def abs_sobel_thresh(img, sobel_kernel=3, orient = 'x', thresh = (0, 255))
 * def color_thresh(img, thresh_s = (70, 185), thresh_h = (15, 30))
+
 There were combined as: combined[(((gradx == 1) & (grady == 1)) |((mag == 1) & (dir_binary == 1)) | (color==1))] = 1
 
 Here you can see a result from the the transformation turned out. 
+A cv2.fillPoly(mask, vertices, ignore_mask_color) mask was applyed as well to reduce noise in the image. 
 ![alt text][image3]
+
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
