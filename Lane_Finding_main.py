@@ -88,7 +88,7 @@ for i in range(1,6):
     #Thresholds of image
     
     plt.figure(figsize= (24, 9))
-    plt.imshow(img_with_lines)
+    plt.imshow(combined, cmap='gray')
 
 #Lets make some Movies: 
 MakeMovie = False
@@ -97,7 +97,7 @@ if MakeMovie ==True:
 
     
     vid_output = 'output_1.mp4'
-    clip1 = VideoFileClip("challenge_video.mp4")
+    clip1 = VideoFileClip("project_video.mp4")
     vid_clip = clip1.fl_image(get_lane_image)
     vid_clip.write_videofile(vid_output, audio=False)
     

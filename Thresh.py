@@ -138,6 +138,6 @@ class Thresh:
             ignore_mask_color = 255
             
         cv2.fillPoly(mask, vertices, ignore_mask_color)
-        combined= cv2.bitwise_and(combined, mask)
+        #combined= cv2.bitwise_and(combined, mask)
                    
         return combined
