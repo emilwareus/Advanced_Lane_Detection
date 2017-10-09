@@ -109,11 +109,13 @@ class Thresh:
         gradx = Thresh.abs_sobel_thresh(image, sobel_kernel=15, orient = 'x', thresh = x_thresh)
         grady = Thresh.abs_sobel_thresh(image, sobel_kernel=15, orient = 'y', thresh = y_thresh)
         mag = Thresh.mag_threashold(image, sobel_kernel=sobel_kernel, thresh=mag_thresh)
+        
         color = Thresh.color_thresh(image, thresh_s =(130, 255), thresh_h = (0, 130))
+        color = cv2.blur(color,(10,10))
         
         combined = np.zeros_like(dir_binary)
        
-        combined[(((gradx == 1) & (grady == 1)) |((mag == 1) & (dir_binary == 1)) | (color==1))] = 1
+        combined[(((gradx == 1) & (grady == 1)) |((mag == 1) & (dir_binary == 1)) & (color==1))] = 1
         #combined[(dir_binary==1)]=1
         # Defining vertices for marked area
         img_shape = image.shape

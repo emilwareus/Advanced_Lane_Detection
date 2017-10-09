@@ -28,6 +28,7 @@ def process_img(image):
     
     #Undistort image
     image = cv2.undistort(image, mtx, dist, None, mtx)
+    undist = image
     
     #Run the threashold algorithms, this Consists of: 
     #dir_binary = Thresh.dir_threashold(image, sobel_kernel=sobel_kernel, thresh=dir_thresh)
@@ -61,7 +62,7 @@ def process_img(image):
     
     img = cv2.resize(img, (1280, 720)) 
         
-    return img,  left_fitx, right_fitx, ploty, exist, combined, per_img_C
+    return undist,  left_fitx, right_fitx, ploty, exist, combined, per_img_C
 
 def get_lane_image(image):
     '''
@@ -88,7 +89,7 @@ for i in range(1,6):
     #Thresholds of image
     
     plt.figure(figsize= (24, 9))
-    plt.imshow(combined, cmap='gray')
+    plt.imshow(img_with_lines) #, cmap='gray'
 
 #Lets make some Movies: 
 MakeMovie = False

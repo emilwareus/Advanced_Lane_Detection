@@ -263,15 +263,15 @@ class Lanes:
             self.left_fitx, self.right_fitx, ploty, exist = self.track_lanes(binary_warped)
           
         
-        if exist:
-            self.left_lane.radius_of_curvature  = self.find_curvature(ploty, self.left_fitx)
-            self.right_lane.radius_of_curvature = self.find_curvature(ploty, self.right_fitx)
-            
-            # Sanity check for the lanes
-            
-            
-            self.left_fitx  = self.sanity_check(self.left_lane, self.left_lane.radius_of_curvature, self.left_fitx, self.left_lane.recent_xfitted)
-            self.right_fitx = self.sanity_check(self.right_lane, self.right_lane.radius_of_curvature, self.right_fitx, self.right_lane.recent_xfitted)
+    
+        self.left_lane.radius_of_curvature  = self.find_curvature(ploty, self.left_fitx)
+        self.right_lane.radius_of_curvature = self.find_curvature(ploty, self.right_fitx)
+        
+        # Sanity check for the lanes
+        
+        
+        self.left_fitx  = self.sanity_check(self.left_lane, self.left_lane.radius_of_curvature, self.left_fitx, self.left_lane.recent_xfitted)
+        self.right_fitx = self.sanity_check(self.right_lane, self.right_lane.radius_of_curvature, self.right_fitx, self.right_lane.recent_xfitted)
 
        
             
