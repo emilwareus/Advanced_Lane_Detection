@@ -17,7 +17,6 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/Distort.PNG "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./output_images/thresh_img.png "Binary Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
@@ -73,14 +72,19 @@ The result is displayed as a part of the final image.
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+Then I used a function called `slid_window()` in the `Road_lanes.py` file. This calculated the histograms and used the sliding window approach. When the lines were identified I used the function `track_lanes()` to follow the lanes, rather then find them all again every fram. But if the lanes got "wierd" I corrected that by a sanity check and a distance check. All this was put together in the function `get_lane()`. 
 
-![alt text][image5]
+See final image to look at the results. 
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The radius is calculated in the `get_lane()` function in the `Road_lanes.py` file. The following algorithm is used to calculate the curvature: 
 
+`python
+fit_cr = np.polyfit(yvals*self.ym_per_pix, fitx*self.xm_per_pix, 2)
+        curverad = ((1 + (2*fit_cr[0]*y_eval + fit_cr[1])**2)**1.5) \
+                                     /np.absolute(2*fit_cr[0])
+`
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
