@@ -17,8 +17,8 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/Distort.PNG "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./output_images/thresh_img.png "Binary Example"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image4]: ./output_images/Car_w_lanes.PNG "Output"
+[video1]: ./output_1.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -80,16 +80,16 @@ See final image to look at the results.
 
 The radius is calculated in the `get_lane()` function in the `Road_lanes.py` file. The following algorithm is used to calculate the curvature: 
 
-`python
+`
 fit_cr = np.polyfit(yvals*self.ym_per_pix, fitx*self.xm_per_pix, 2)
         curverad = ((1 + (2*fit_cr[0]*y_eval + fit_cr[1])**2)**1.5) \
                                      /np.absolute(2*fit_cr[0])
 `
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+The finding on the lanes was implemented in the file `Lane_Finding_main.py` with the functions `process_img()` and `get_lane_image()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![alt text][image4]
 
 ---
 
