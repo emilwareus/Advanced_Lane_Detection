@@ -93,11 +93,12 @@ class Thresh:
         h_binary[(h_channel >= thresh_h[0]) & (h_channel <= thresh_h[1])] = 1
         
        
+       
         ##c_binary = np.dstack(s_binary, h_binary)*255
         c_binary = np.zeros_like(h_binary)
         c_binary[(h_binary == 1) & (s_binary == 1)] = 1
                     
-        return s_binary
+        return c_binary
     
     
     def threshold(image, sobel_kernel = 5, dir_thresh = (.65, 1.05), mag_thresh = (40, 255), x_thresh = (10, 255), y_thresh = (60, 255)):
@@ -107,10 +108,35 @@ class Thresh:
         gradx = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'x', thresh = x_thresh)
         grady = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'y', thresh = y_thresh)
         mag = Thresh.mag_threashold(image, sobel_kernel=sobel_kernel, thresh=mag_thresh)
-        color = Thresh.color_thresh(image, thresh_s =(170, 255), thresh_h = (15, 100))
+        color = Thresh.color_thresh(image, thresh_s =(20, 255), thresh_h = (0, 255))
         
         combined = np.zeros_like(dir_binary)
-        #& (color == 1)
-        combined[(((gradx == 1) & (grady == 1) & (color == 1)) | (((mag == 1)| (color == 1)) & (dir_binary == 1)) )] = 1
-                 
+       
+        combined[((((gradx == 1) & (grady == 1)) | ((mag == 1) & (dir_binary == 1))) & (color ==1))] = 1
+        #combined[(dir_binary==1)]=1
+        # Defining vertices for marked area
+        img_shape = image.shape
+        l_b = (170, img_shape[0])
+        r_b = (img_shape[1]-170, img_shape[0])
+        apex1 = (int(img_shape[1]/2) - 40, 410)
+        apex2 = (int(img_shape[1]/2) + 40, 410)
+        inner_left_bottom = (150+170, img_shape[0])
+        inner_right_bottom = (img_shape[1]-150-170, img_shape[0])
+        inner_apex1 = (int(img_shape[1]/2) + 30,480)
+        inner_apex2 = (int(img_shape[1]/2) - 30,480)
+        vertices = np.array([[l_b, apex1, apex2, \
+                              r_b, inner_right_bottom, \
+                              inner_apex1, inner_apex2, inner_left_bottom]], dtype=np.int32)
+        # Masked area
+        mask = np.zeros_like(combined)   
+        
+        if len(img_shape) > 2:
+            channel_count = img_shape[2]  # i.e. 3 or 4 depending on your image
+            ignore_mask_color = (255,) * channel_count
+        else:
+            ignore_mask_color = 255
+            
+        cv2.fillPoly(mask, vertices, ignore_mask_color)
+        combined= cv2.bitwise_and(combined, mask)
+                   
         return combined

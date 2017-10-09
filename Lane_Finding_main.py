@@ -5,32 +5,63 @@ Created on Sun Sep 24 11:03:23 2017
 @author: Emil Wåreus
 """
 
-import numpy as np
 import cv2
 import matplotlib.pylab as plt
-import matplotlib.image as mpimg
-import pickle
+
+
+import numpy as np
+
+
 
 from Thresh import Thresh
 from Distort import Distort
-from Sliding_Window import Sliding_Window
+from Road_lanes import Lanes
+
+
+
+Lanes = Lanes()
 
 def process_img(image):
+    
+    #Due to that openCV is used to read the image
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    #Undistort image
+    image = cv2.undistort(image, mtx, dist, None, mtx)
+    
+    #Run the threashold algorithms, this Consists of: 
+    #dir_binary = Thresh.dir_threashold(image, sobel_kernel=sobel_kernel, thresh=dir_thresh)
+    #gradx = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'x', thresh = x_thresh)
+    #grady = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'y', thresh = y_thresh)
+    #mag = Thresh.mag_threashold(image, sobel_kernel=sobel_kernel, thresh=mag_thresh)
+    #color = Thresh.color_thresh(image, thresh_s =(170, 255), thresh_h = (15, 100))
+    #combined = np.zeros_like(dir_binary)
+    #combined[(((gradx == 1) & (grady == 1) & (color == 1)) | (((mag == 1)| (color == 1)) & (dir_binary == 1)) )] = 1
+                 
     combined = Thresh.threshold(image)
 
     #Perspective change
-    per_img, M, sr_c, M_t = Distort.perspect_Transform(image)
     per_img_C, M_C, src, M_t_c = Distort.perspect_Transform(combined)
     
     
-    left_fitx, right_fitx, ploty, exist = Sliding_Window.slid_window(per_img_C)
+    left_fitx, right_fitx, ploty, exist = Lanes.get_lane(per_img_C)
     
     
-    img_with_lines = Sliding_Window.draw_lines(image, per_img_C, left_fitx, right_fitx, ploty, M_t_c, exist)
+    img_with_lines = Lanes.draw_lines(image, per_img_C, left_fitx, right_fitx, ploty, M_t_c, exist)
        
+    per_img_C= cv2.resize(per_img_C, None, fx = 0.5, fy= 0.5,  interpolation = cv2.INTER_CUBIC)
+    combined = cv2.resize(combined, None, fx = 0.5, fy= 0.5,  interpolation = cv2.INTER_CUBIC)
+   
+    img = np.zeros([ 720,int(1280*1.5), 3], dtype=type(img_with_lines[0,0,0]))
     
+    img[:,:1280,:] = img_with_lines
+    print()
+    img[:int(720/2),1280:,1] = (combined/combined.max())*255
+    img[int(720/2):,1280:,0] = (per_img_C/per_img_C.max())*255
     
-    return img_with_lines,  left_fitx, right_fitx, ploty, exist, combined, per_img_C
+    img = cv2.resize(img, (1280, 720)) 
+        
+    return img,  left_fitx, right_fitx, ploty, exist, combined, per_img_C
 
 def get_lane_image(image):
     '''
@@ -39,25 +70,32 @@ def get_lane_image(image):
     '''
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     img_with_lines,  left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image) 
-    img_with_lines = cv2.cvtColor(img_with_lines, cv2.COLOR_RGB2BGR)
+    
+    #Remove this when makeing movie
+    #img_with_lines = cv2.cvtColor(img_with_lines, cv2.COLOR_RGB2BGR)
     return img_with_lines
 
 
+
+mtx, dist = Distort.calibrate()
 image = cv2.imread('test_images/test5.jpg') 
 
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 #Pipeline
+Lanes.init_lanes()
 img_with_lines, left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image)
 #Thresholds of image
 
-
+plt.figure(figsize= (24, 9))
+plt.imshow(img_with_lines)
+'''
 #Plotting 2x2 window grid
 f1, (ax1, ax2) = plt.subplots(1, 2, figsize= (24, 9))
 f1.tight_layout()
 ax1.imshow(combined, cmap = 'gray')
-ax1.set_title('Thres Image', fontsize = 50)
+ax1.set_title('Thresh Image', fontsize = 50)
 
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 ax2.imshow(image)
 #ax2.scatter(src[...,0],src[...,1], c='r', s=60)          
 ax2.set_title('Original Image', fontsize = 50)
@@ -80,19 +118,18 @@ ax4.imshow(img_with_lines)
 ax4.set_title('Image with Lanes', fontsize = 50)
 
 plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
-
+'''
 
 
 #Lets make some Movies: 
 
 MakeMovie = True
-
 if MakeMovie ==True:
     from moviepy.editor import VideoFileClip
-    from IPython.display import HTML
+
     
-    vid_output = 'output.mp4'
-    clip1 = VideoFileClip("project_video.mp4")
+    vid_output = 'output_3.mp4'
+    clip1 = VideoFileClip("challenge_video.mp4")
     vid_clip = clip1.fl_image(get_lane_image)
     vid_clip.write_videofile(vid_output, audio=False)
     

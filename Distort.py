@@ -8,9 +8,69 @@ Created on Thu Sep 28 07:29:41 2017
 
 import numpy as np
 import cv2
+import matplotlib.pylab as plt
+import matplotlib.image as mpimg
 
 
 class Distort:
+    
+    def calibrate():
+        
+        nx = 9
+        ny = 6
+        
+        #Getting points ready
+        pnt = np.zeros((nx*ny,3), np.float32)
+        pnt[:,:2] =  np.mgrid[0:nx, 0:ny].T.reshape(-1,2)
+        
+        obj_pnt = []
+        img_pnt = []
+        
+        
+        for i in range(1,21):
+            
+                
+            cal_img = ('camera_cal/calibration{}.jpg'.format(i))
+            img = cv2.imread(cal_img)    
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
+            
+            if ret == True:
+                
+                obj_pnt.append(pnt)
+                img_pnt.append(corners)
+                
+            
+        img_size = (img.shape[1], img.shape[0])    
+        
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_pnt, img_pnt, img_size,None,None)
+                
+        for i in range(1,21):
+            
+            cal_img = ('camera_cal/calibration{}.jpg'.format(i))
+            img = cv2.imread(cal_img)    
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
+            
+            if ret == True:
+                
+                cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
+                
+                dst = cv2.undistort(img, mtx, dist, None, mtx)
+       
+                f1, (ax1, ax2) = plt.subplots(1, 2, figsize= (14, 5))
+                f1.tight_layout()
+                ax1.imshow(img)
+                ax1.set_title('Raw image {}'.format(i), fontsize = 30)
+                
+                ax2.imshow(dst, cmap = 'gray')
+                ax2.set_title('Distorted Image {}'.format(i), fontsize = 30)
+                
+                plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
+        
+        return mtx, dist
+    
+    
     def corners_unwarp(img, nx, ny, mtx, dist):
         # Use the OpenCV undistort() function to remove distortion
         undist = cv2.undistort(img, mtx, dist, None, mtx)
@@ -81,4 +141,5 @@ class Distort:
         warped = cv2.warpPerspective(img, M, img_size)
         
         return warped, M, src, M_t
-        
+
+    

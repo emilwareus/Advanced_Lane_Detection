@@ -5,6 +5,10 @@ Created on Mon Oct  2 18:10:07 2017
 @author: Emil Wåreus
 """
 
+
+
+import numpy as np
+
 # Define a class to receive the characteristics of each line detection
 class Line():
     def __init__(self):

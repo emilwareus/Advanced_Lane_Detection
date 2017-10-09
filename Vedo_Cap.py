@@ -7,11 +7,9 @@ Created on Wed Oct  4 07:17:24 2017
 
 import cv2
 import Lane_Finding_main
-from Thresh import Thresh
-from Distort import Distort
-from Sliding_Window import Sliding_Window
 
-cap = cv2.VideoCapture(0)
+
+cap = cv2.VideoCapture('challenge_video.mp4')
 
 while(True):
     # Capture frame-by-frame
@@ -23,6 +21,8 @@ while(True):
         img_with_lines = Lane_Finding_main.get_lane_image(frame)
         #print(frame.shape)
         #Display the resulting frame
+        img_with_lines = img_with_lines
+        print(img_with_lines.max())
         cv2.imshow('frame', img_with_lines)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
