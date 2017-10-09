@@ -264,14 +264,15 @@ class Lanes:
           
         
         if exist:
-            left_curverad  = self.find_curvature(ploty, self.left_fitx)
-            right_curverad = self.find_curvature(ploty, self.right_fitx)
+            self.left_lane.radius_of_curvature  = self.find_curvature(ploty, self.left_fitx)
+            self.right_lane.radius_of_curvature = self.find_curvature(ploty, self.right_fitx)
+            
             # Sanity check for the lanes
             
             
-            self.left_fitx  = self.sanity_check(self.left_lane, left_curverad, self.left_fitx, self.left_lane.recent_xfitted)
-            self.right_fitx = self.sanity_check(self.right_lane, right_curverad, self.right_fitx, self.right_lane.recent_xfitted)
-        
+            self.left_fitx  = self.sanity_check(self.left_lane, self.left_lane.radius_of_curvature, self.left_fitx, self.left_lane.recent_xfitted)
+            self.right_fitx = self.sanity_check(self.right_lane, self.right_lane.radius_of_curvature, self.right_fitx, self.right_lane.recent_xfitted)
+
        
             
             
@@ -315,15 +316,17 @@ class Lanes:
         
         difference = lane_center - car_center
         
-        difference_meters = difference * self.xm_per_pix
-        
+        self.left_lane.line_base_pos  = difference * self.xm_per_pix
+        self.right_lane.line_base_pos= self.left_lane.line_base_pos
         if difference < 0:
-            cv2.putText(wraped_image, "{0:.2f} m right of center".format(difference_meters), (30,110), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), thickness=6)
+            cv2.putText(wraped_image, "{0:.2f} m right of center".format(self.left_lane.line_base_pos), (30,110), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), thickness=6)
         else:
-            cv2.putText(wraped_image, "{0:.2f} m left of center".format(difference_meters), (30,110), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), thickness=6)
-    
+            cv2.putText(wraped_image, "{0:.2f} m left of center".format(self.left_lane.line_base_pos), (30,110), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), thickness=6)
+        
+        
+        cv2.putText(wraped_image, "{0:.2f} m radius of curvature".format(float(self.left_lane.radius_of_curvature+self.right_lane.radius_of_curvature)/2), (30,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), thickness=6)
         return wraped_image
-   
+    
         
  
     def visual_lines(self, binary_warped, left_fit, right_fit, left_lane_inds, right_lane_inds, out_img, nonzeroy, nonzerox):

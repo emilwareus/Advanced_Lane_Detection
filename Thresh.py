@@ -101,29 +101,30 @@ class Thresh:
         return c_binary
     
     
-    def threshold(image, sobel_kernel = 5, dir_thresh = (.65, 1.05), mag_thresh = (40, 255), x_thresh = (10, 255), y_thresh = (60, 255)):
+    def threshold(image, sobel_kernel = 3, dir_thresh = (.65, 1.05), mag_thresh = (60, 255), 
+                  x_thresh = (10, 255), y_thresh = (60,255)):
         
         
         dir_binary = Thresh.dir_threashold(image, sobel_kernel=sobel_kernel, thresh=dir_thresh)
-        gradx = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'x', thresh = x_thresh)
-        grady = Thresh.abs_sobel_thresh(image, sobel_kernel=sobel_kernel, orient = 'y', thresh = y_thresh)
+        gradx = Thresh.abs_sobel_thresh(image, sobel_kernel=15, orient = 'x', thresh = x_thresh)
+        grady = Thresh.abs_sobel_thresh(image, sobel_kernel=15, orient = 'y', thresh = y_thresh)
         mag = Thresh.mag_threashold(image, sobel_kernel=sobel_kernel, thresh=mag_thresh)
-        color = Thresh.color_thresh(image, thresh_s =(20, 255), thresh_h = (0, 255))
+        color = Thresh.color_thresh(image, thresh_s =(130, 255), thresh_h = (0, 130))
         
         combined = np.zeros_like(dir_binary)
        
-        combined[((((gradx == 1) & (grady == 1)) | ((mag == 1) & (dir_binary == 1))) & (color ==1))] = 1
+        combined[(((gradx == 1) & (grady == 1)) |((mag == 1) & (dir_binary == 1)) | (color==1))] = 1
         #combined[(dir_binary==1)]=1
         # Defining vertices for marked area
         img_shape = image.shape
-        l_b = (170, img_shape[0])
-        r_b = (img_shape[1]-170, img_shape[0])
-        apex1 = (int(img_shape[1]/2) - 40, 410)
-        apex2 = (int(img_shape[1]/2) + 40, 410)
-        inner_left_bottom = (150+170, img_shape[0])
-        inner_right_bottom = (img_shape[1]-150-170, img_shape[0])
-        inner_apex1 = (int(img_shape[1]/2) + 30,480)
-        inner_apex2 = (int(img_shape[1]/2) - 30,480)
+        l_b = (190, img_shape[0])
+        r_b = (img_shape[1]-190, img_shape[0])
+        apex1 = (int(img_shape[1]/2) - 60, 410)
+        apex2 = (int(img_shape[1]/2) + 60, 410)
+        inner_left_bottom = (150+190, img_shape[0])
+        inner_right_bottom = (img_shape[1]-150-190, img_shape[0])
+        inner_apex1 = (int(img_shape[1]/2) + 10,480)
+        inner_apex2 = (int(img_shape[1]/2) - 10,480)
         vertices = np.array([[l_b, apex1, apex2, \
                               r_b, inner_right_bottom, \
                               inner_apex1, inner_apex2, inner_left_bottom]], dtype=np.int32)

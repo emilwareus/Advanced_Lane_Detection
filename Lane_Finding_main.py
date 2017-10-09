@@ -78,57 +78,25 @@ def get_lane_image(image):
 
 
 mtx, dist = Distort.calibrate()
-image = cv2.imread('test_images/test5.jpg') 
-
-
-#Pipeline
-Lanes.init_lanes()
-img_with_lines, left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image)
-#Thresholds of image
-
-plt.figure(figsize= (24, 9))
-plt.imshow(img_with_lines)
-'''
-#Plotting 2x2 window grid
-f1, (ax1, ax2) = plt.subplots(1, 2, figsize= (24, 9))
-f1.tight_layout()
-ax1.imshow(combined, cmap = 'gray')
-ax1.set_title('Thresh Image', fontsize = 50)
-
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-ax2.imshow(image)
-#ax2.scatter(src[...,0],src[...,1], c='r', s=60)          
-ax2.set_title('Original Image', fontsize = 50)
-
-plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
-
-f2, (ax3, ax4) = plt.subplots(1, 2, figsize= (24, 9))
-
-f2.tight_layout()
-
-
-ax3.imshow(per_img_C, cmap = 'gray')
-if exist:
-    ax3.plot(left_fitx, ploty, color='yellow')
-    ax3.plot(right_fitx, ploty, color='yellow')
-ax3.set_title('Thresh image perspective', fontsize = 50)
-
-
-ax4.imshow(img_with_lines)
-ax4.set_title('Image with Lanes', fontsize = 50)
-
-plt.subplots_adjust(left=0., right = 1, top = 0.9, bottom = 0.)
-'''
-
+for i in range(1,6):
+   
+    image = cv2.imread('test_images/test{}.jpg'.format(i)) 
+    
+    #Pipeline
+    Lanes.init_lanes()
+    img_with_lines, left_fitx, right_fitx, ploty, exist, combined, per_img_C = process_img(image)
+    #Thresholds of image
+    
+    plt.figure(figsize= (24, 9))
+    plt.imshow(img_with_lines)
 
 #Lets make some Movies: 
-
-MakeMovie = True
+MakeMovie = False
 if MakeMovie ==True:
     from moviepy.editor import VideoFileClip
 
     
-    vid_output = 'output_3.mp4'
+    vid_output = 'output_1.mp4'
     clip1 = VideoFileClip("challenge_video.mp4")
     vid_clip = clip1.fl_image(get_lane_image)
     vid_clip.write_videofile(vid_output, audio=False)
