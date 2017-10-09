@@ -15,7 +15,7 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./output_images/Distort.PNG "Undistorted"
-[image2]: ./output_images/Undist_img.jpg "Road Transformed"
+[image2]: ./output_images/Undist_img.png "Road Transformed"
 [image3]: ./output_images/thresh_img.png "Binary Example"
 [image4]: ./output_images/Car_w_lanes.PNG "Output"
 [video1]: ./output_1.mp4 "Video"
